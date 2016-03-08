@@ -5,7 +5,7 @@
 \title{Create daily aggregates of select parameters in a
 standard Ameriflux data file or data frame}
 \usage{
-\method{aggregate}{flux.data}(df)
+aggregate.flux.data(df)
 }
 \arguments{
 \item{df:}{Amerflux data file or data frame}
