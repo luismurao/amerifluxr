@@ -14,8 +14,8 @@ Check the existence of a directory
 }
 \examples{
 # outputting TRUE or FALSE
-dir.exists(pat)
+value = dir.exists(path)
 }
-\keyword{file}
+\keyword{files,}
 \keyword{management}
 
