@@ -1,11 +1,11 @@
 #' Check the existence of a directory
 #' 
 #' @param path: path to check for existence
-#' @keywords file management
+#' @keywords files, management
 #' @export
 #' @examples
 #' # outputting TRUE or FALSE
-#' dir.exists(pat)
+#' value = dir.exists(path)
 
 dir.exists <- function(d) {
   de <- file.info(d)$isdir

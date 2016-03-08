@@ -1,10 +1,10 @@
 Package: amerifluxr
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Title: R toolbox to facilitate easy access / visualize Ameriflux data
+Version: 0.1
+Authors@R: person("Koen", "Hufkens", email = "koen.hufkens@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
 Depends:
     R (>= 3.0.0),data.table,shiny,leaflet,plotly,DT,shinydashboard,rvest
-License: What license is it under?
+License: see LICENSE
 LazyData: true
 RoxygenNote: 5.0.1

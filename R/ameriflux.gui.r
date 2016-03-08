@@ -5,8 +5,8 @@
 #' # outputting TRUE or FALSE
 #' ameriflux.gui()
 
-ameriflux.gui <- function() {
+ameriflux.gui <- function(){
   appDir = sprintf("%s/R/inst/shiny/ameriflux_explorer",path.package("amerifluxr"))
-  #appDir='Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/inst/shiny/ameriflux_explorer'
+  #appDir='/data/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/inst/shiny/ameriflux_explorer'
   shiny::runApp(appDir, display.mode = "normal",launch.browser=TRUE)
 }
