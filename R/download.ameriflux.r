@@ -29,7 +29,6 @@ download.ameriflux = function(site="US-Ha1",gaps=TRUE){
     
     # check available products
     url = sprintf("%s/%s/",server,i)
-    print(url)
     status = try(download(url=url,"site_info.txt",quiet=T,method="curl")) # add exception for Windows?
     
     if(status != 0 ){
