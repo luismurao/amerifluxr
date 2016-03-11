@@ -118,7 +118,6 @@ download.ameriflux = function(site="US-Ha1",gap_fill=TRUE){
           data = suppressWarnings(fread(url,skip=20,header=FALSE,sep=",",showProgress=FALSE))
 
         }else{ # appending the data to an existing file
-
           tmp = suppressWarnings(fread(url,skip=20,header=FALSE,sep=",",showProgress=FALSE))
           data = rbind(data,tmp)
         }

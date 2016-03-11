@@ -418,9 +418,10 @@ server <- function(input, output, session){
       # data frame columns using their input$... name
       date = plot_data$date
       year = plot_data$year
-      doy = plot_data$doy  
+      doy = plot_data$doy
       flux = plot_data[,which(colnames(plot_data)==input$productivity)]
       
+      # check the plotting type
       if (input$plot_type == "daily"){        
         
         # include cummulative values in plotting, should be easier to interpret

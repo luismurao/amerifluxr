@@ -92,11 +92,11 @@ body <- dashboardBody(
                                        column(6,
                                               checkboxInput("refresh","Refresh", value = FALSE, width = NULL))
                               ),
-                              selectInput("productivity", "Ecosystem Productivity",c("NEE","GPP"),width="100%"),
+                              selectInput("productivity", "Ecosystem Productivity",c("NEE (gC m-2 d-1)"="NEE","GPP (gC m-2 d-1)"="GPP"),width="100%"),
                               selectInput("covariate", "Covariate",c("temperature (C)" = "temperature",
                                                                      "precipitation (mm)" = "precipitation",
                                                                      "VPD (kPa)" = "VPD",
-                                                                     "PAR (umol m-2 s-1)" = "PAR",
+                                                                     "PAR (umol m-2 d-1)" = "PAR",
                                                                      "RH (%)" = "RH"),width="100%"),
                               selectInput("plot_type", "Plot Type",c("daily","yearly"),width="100%")                          )),
                    column(9,

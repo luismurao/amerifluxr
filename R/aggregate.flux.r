@@ -13,6 +13,10 @@ aggregate.flux = function(df){
   # load required libraries
   require(data.table)
   
+  # constants
+  sec_hh = 1800 # seconds in a half hour
+  mol_c=12/1000000 # g C per umol CO
+  
   # check file format
   # if the data is not a data frame, load
   # the file (assuming it is a phenocam)
@@ -33,19 +37,26 @@ aggregate.flux = function(df){
   df[df <= -6999] = NA
   
   # rename the time variables, for convenience
-  doy_long = as.integer(floor(df$DTIME))
+  doy_long = df$DOY
   year_long = df$YEAR
   
-  # check the measurements units...
-  GPP = as.vector(by(df$GPP,INDICES = list(doy_long,year_long),sum,na.rm=T)) # umol/m2/s
-  NEE = as.vector(by(df$NEE,INDICES = list(doy_long,year_long),sum,na.rm=T)) # umol/m2/s
+  # For reference: Fluxes are averages for the half hour, so to get a per
+  # Half-hour flux you need to multiply by 1800.
+  # Fluxes on a half hourly or hourly scale are always reported per second, 
+  # whilst aggregates are used for longer scales (per day, week etc.)
+  GPP = as.vector(by(df$GPP*sec_hh*mol_c,INDICES = list(doy_long,year_long),sum,na.rm=T)) # gC/m2/day
+  NEE = as.vector(by(df$NEE*sec_hh*mol_c,INDICES = list(doy_long,year_long),sum,na.rm=T)) # gC/m2/day
+  PAR = as.vector(by(df$PAR*sec_hh,INDICES = list(doy_long,year_long),sum,na.rm=T)) # umol/m2/day
+  # NOTE: the above values assume no missing data to be realistic! This might not
+  # be the case for the raw data. Conversions to gC m-2 d-1 might make more sense as the
+  # numbers become large with the 1800 multiplier.
+  
   temperature = as.vector(by(df$TA,INDICES = list(doy_long,year_long),mean,na.rm=T)) # degrees C
-  PAR = as.vector(by(df$PAR,INDICES = list(doy_long,year_long),sum,na.rm=T)) # umol/m2/s
   VPD = as.vector(by(df$VPD,INDICES = list(doy_long,year_long),mean,na.rm=T)) # kpa
   RH = as.vector(by(df$RH,INDICES = list(doy_long,year_long),mean,na.rm=T)) # %
   precipitation = as.vector(by(df$PREC,INDICES = list(doy_long,year_long),sum,na.rm=T)) # %
   
-  # create date vectors
+  # create date vectors as long as the daily aggregates
   doy = as.vector(by(doy_long,INDICES = list(doy_long,year_long),max,na.rm=T))
   year = as.vector(by(year_long,INDICES = list(doy_long,year_long),max,na.rm=T))
   date = as.Date(sprintf("%s-%s",year,doy),"%Y-%j")
@@ -59,3 +70,5 @@ aggregate.flux = function(df){
   # return data
   return(df)
 }
+
+test = aggregate.flux(df)
