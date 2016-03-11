@@ -24,6 +24,9 @@ tags$html(
       tags$li('Advance understanding of processes regulating carbon assimilation, respiration, and storage'),
       tags$li('Collect critical new information to help define the current global CO',tags$sub('2'),'budget'),
       tags$li('Enable improved predictions of future concentrations of atmospheric CO',tags$sub('2'))
-    )
+    ),
+    
+    tags$h2('Acknowledgements'), 
+    tags$p('Those who use AmeriFlux Network data for their research are strongly encouraged to acknowledge both the site principal investigators who contributed the data they use, and the support that the AmeriFlux Network data processing and archival receive from the U.S. DOE. Suggested acknowledgment: We acknowledge the following AmeriFlux sites for their data records: site IDs. In addition, funding for AmeriFlux data resources was provided by the U.S. Department of Energy’s Office of Science.')
   )
 )

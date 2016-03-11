@@ -6,26 +6,18 @@ require(plotly) # fancy ploty in shiny
 require(DT) # interactive tables for shiny
 require(data.table) # loads data far faster than read.table()
 
-path = sprintf("%s/R/inst/shiny/ameriflux_explorer",path.package("amerifluxr"))
-#path = "/data/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/shiny/ameriflux_explorer"
-
 # grab the OS info
 OS = Sys.info()[1]
+machine = Sys.info()[4]
 
-# if( OS == "Windows"){
-#   # side load stuff for development
-#   source('/Users/Koen/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/download.ameriflux.r')
-#   source('/Users/Koen/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/dir.exists.r')
-#   source('/Users/Koen/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/ameriflux.info.r')
-#   source('/Users/Koen/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/aggregate.flux.r')
-# }else{
-#   # side load stuff for development
-#   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/download.ameriflux.r')
-#   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/dir.exists.r')
-#   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/ameriflux.info.r')
-#   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/aggregate.flux.r')
-#   
-# }
+# When on the machine of the developer, sideload the code locally
+# for quick reviewing of changes to the GUI
+if (machine == "squeeze" | machine == "razor"){
+  source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/download.ameriflux.r')
+  source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/dir.exists.r')
+  source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/ameriflux.info.r')
+  source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/aggregate.flux.r')
+}
 
 # create temporary directory and move into it
 if (!dir.exists("~/ameriflux_cache")){
@@ -127,28 +119,23 @@ server <- function(input, output, session){
   getValueData = function(table){
     
     nr_sites = length(unique(table$site_id))
-    
     output$site_count <- renderInfoBox({
       valueBox(nr_sites,"Sites",
                icon = icon("list"),
-               color = "blue"
-      )
+               color = "blue")
     })
     
     nr_years = sum(table$site_years,na.rm=T)
-    
     output$year_count <- renderInfoBox({
       valueBox(nr_years,"Site Years",
                icon = icon("list"),
-               color = "blue"
-      )
+               color = "blue")
     })
     
     output$season_count <- renderInfoBox({
       valueBox(nr_sites,"# Growing Seaons",
                icon = icon("list"),
-               color = "blue"
-      )
+               color = "blue")
     })
     
   }

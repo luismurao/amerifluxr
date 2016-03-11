@@ -3,7 +3,6 @@ require(shiny)
 require(shinydashboard)
 require(leaflet)
 require(plotly)
-require(RColorBrewer)
 require(DT)
 
 # source about page content
@@ -42,7 +41,7 @@ sidebar <- dashboardSidebar(
     menuItem("code on GitHub", icon = icon("github"), href = "https://github.com/khufkens/amerifluxr"),
     sidebarUserPanel(name = "Koen Hufkens",
                      image = "https://avatars2.githubusercontent.com/u/1354258?v=3&s=460",
-                     subtitle = a("Profile on Github", href = "http://www.github.com/khufkens")
+                     subtitle = a("Personal Website", href = "http://www.khufkens.com")
                      )
   )
 )
