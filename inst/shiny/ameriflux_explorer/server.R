@@ -187,7 +187,7 @@ server <- function(input, output, session){
            pch=19,
            col=rgb(0.5,0.5,0.5,0.3),
            xlim=c(-15,30),
-           ylim=c(0,3000)
+           ylim=c(0,2500)
       )
     },height = function() {
       session$clientData$output_test_height

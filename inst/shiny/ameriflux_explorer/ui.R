@@ -36,8 +36,8 @@ sidebar <- dashboardSidebar(
   includeCSS("www/custom.css"),
   sidebarMenu(
     menuItem("Explore data", tabName = "explorer", icon = icon("leaf")),
-    menuItem("About the package", tabName = "help", icon = icon("question")),
     menuItem("About Ameriflux", tabName = "about", icon = icon("question")),
+    menuItem("About the package", tabName = "help", icon = icon("question")),
     menuItem("code on GitHub", icon = icon("github"), href = "https://github.com/khufkens/amerifluxr"),
     sidebarUserPanel(name = "Koen Hufkens",
                      image = "https://avatars2.githubusercontent.com/u/1354258?v=3&s=460",
@@ -75,7 +75,7 @@ body <- dashboardBody(
                               absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
                                             draggable = TRUE, top = 300, left = "auto", right = 70, bottom = "auto",
                                             width = 320, height = 350,
-                                            h4("Climatology"),
+                                            h4("Climatology of selected sites", align = "center"),
                                             plotOutput("test", height=280,width=280)
                                             )
                           )
