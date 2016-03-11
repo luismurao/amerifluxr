@@ -6,6 +6,6 @@
 #' ameriflux.explorer()
 
 ameriflux.explorer <- function(){
-  appDir = sprintf("%s/R/inst/shiny/ameriflux_explorer",path.package("amerifluxr"))
+  appDir = sprintf("%s/shiny/ameriflux_explorer",path.package("amerifluxr"))
   shiny::runApp(appDir, display.mode = "normal",launch.browser=TRUE)
 }
