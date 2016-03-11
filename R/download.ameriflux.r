@@ -10,12 +10,14 @@
 #' # with defaults, outputting a data frame
 #' df <- download.ameriflux(site="US-Ha1",gaps=FALSE)
 
-download.ameriflux = function(site="US-Ha1",gaps=TRUE){
+download.ameriflux = function(site="US-Ha1",gap_fill=TRUE){
   
   # libraries
-  require(downloader) # to ensure compatibility with Windows systems
   require(data.table) # loads data far faster than read.table()
-  require(stringr) # to parse html data easily
+  require(RCurl) # for fast ftp directory listing
+  
+  # grab the OS info
+  OS = Sys.info()[1]
   
   # set timeout of downloads
   options(timeout=300)
@@ -29,9 +31,20 @@ download.ameriflux = function(site="US-Ha1",gaps=TRUE){
     
     # check available products
     url = sprintf("%s/%s/",server,i)
-    status = try(download(url=url,"site_info.txt",quiet=T,method="curl")) # add exception for Windows?
+    status = try(getURL(url,dirlistonly = TRUE))
     
-    if(status != 0 ){
+    if(!inherits(status,"try-error")){
+      
+      # check what product directories are there
+      with_gaps = any(grepl("with_gaps",status))
+      gap_filled = any(grepl("gap_filled",status))
+      
+      if( gap_filled == FALSE & gap_fill == TRUE){
+        warning(sprintf("site %s exists, but does not contain valid gap filled data!",i))
+        next
+      }
+      
+    }else{
       
       # if the site doesn't exist, either stop if it's the last site
       # otherwise proceed to next one
@@ -44,46 +57,29 @@ download.ameriflux = function(site="US-Ha1",gaps=TRUE){
         next # progress to next file
       }
       
-    }else{
-      
-      # read in data
-      site_info = readLines("site_info.txt")
-      with_gaps = any(grepl("with_gaps",site_info))
-      gap_filled = any(grepl("gap_filled",site_info))
-      
-      if( gap_filled == FALSE & with_gaps == FALSE){
-        warning(sprintf("site %s exists, but does not contain valid data!",i))
-        next
-      }
     }
     
     # set gap strings to be used later on
-    if(gaps==TRUE){
-      
-      gap_dir = "with_gaps"
-      gap = "WG"      
-      
-    }else{
-      
+    if(gap_fill==TRUE){
       gap_dir ="gap_filled"
       gap = "GF"
-      
-    }
-    
-    # remove old file / just to be sure not to read in faulty data
-    if(file.exists('site_files.txt')){
-       file.remove('site_files.txt')
+    }else{
+      gap_dir = "with_gaps"
+      gap = "WG"
     }
     
     # download file list for a given site and product (gap filled or not)
     url = sprintf("%s/%s/%s/",server,i,gap_dir)
-    status = try(download(url=url,"site_files.txt",quiet=T,method="curl"))
+    status = try(getURL(url,dirlistonly = TRUE))
     
-    if (status == 0){
+    if (!inherits(status,"try-error")){
       
-      flux_data_files = read.table("site_files.txt")[,9]
-      flux_data_files = as.character(flux_data_files[grep("*.csv",flux_data_files)])
- 
+      flux_data_files = unlist(strsplit(status,"\n"))
+      flux_data_files = gsub("\r","",flux_data_files)
+      
+      # only select csv ones
+      flux_data_files = flux_data_files[grepl("*.csv",flux_data_files)]
+
       # grab start and end year
       years = unique(unlist(lapply(strsplit(flux_data_files,split="_"),"[[",3)))
       start_year = min(years)
@@ -103,6 +99,7 @@ download.ameriflux = function(site="US-Ha1",gaps=TRUE){
         
         # format url of download file
         url = sprintf("%s/%s/%s/%s",server,i,gap_dir,flux_data_files[f])
+        
         # give some feedback on processing
         cat(sprintf("  - adding year: %s \n", years[f]))
         
@@ -110,25 +107,20 @@ download.ameriflux = function(site="US-Ha1",gaps=TRUE){
         # new file header
         if(f==1){ # downloading first file and writing header and data
           
-          download(url=url,"flux_data.txt",quiet=T,method="curl") # add exception for Windows?
-          header = readLines("flux_data.txt",n=20)
-          data = fread("flux_data.txt",skip=20,header=FALSE,sep=",")
-          write.table(header,filename,quote=FALSE,row.names=FALSE,col.names=FALSE,sep="")
-          write.table(data,filename,quote=FALSE,row.names=FALSE,col.names=FALSE,sep=",",append = TRUE)
+          header = readLines(url(url),n=20)
           
+          # directly read data from the server into data.table 
+          data = suppressWarnings(fread(url,skip=20,header=FALSE,sep=",",showProgress=FALSE))
+
         }else{ # appending the data to the existing file
           
-          download(url=url,"flux_data.txt",quiet=T,method="curl") # add exception for Windows?
-          data = fread("flux_data.txt",skip=20,header=FALSE,sep=",")
-          write.table(data,filename,quote=FALSE,row.names=FALSE,col.names=FALSE,sep=",",append = TRUE)          
-          
+          tmp = suppressWarnings(fread(url,skip=20,header=FALSE,sep=",",showProgress=FALSE))
+          data = rbind(data,tmp)
         }  
       }
-      
-      # clean up all temporary download files
-      file.remove("site_info.txt")  # remove the site info (test if the site exists)
-      file.remove("site_files.txt") # remove the list of files for each site
-      file.remove("flux_data.txt")  # remove the temporary flux data file
+
+      write.table(header,filename,quote=FALSE,row.names=FALSE,col.names=FALSE,sep="")
+      write.table(data,filename,quote=FALSE,row.names=FALSE,col.names=FALSE,sep=",",append = TRUE)
       
     }else{
       

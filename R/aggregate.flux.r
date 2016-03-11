@@ -36,7 +36,7 @@ aggregate.flux = function(df){
   doy_long = as.integer(floor(df$DTIME))
   year_long = df$YEAR
   
-  # check the measurements units, how to convert from mmmol/s / half hour to daily values
+  # check the measurements units...
   GPP = as.vector(by(df$GPP,INDICES = list(doy_long,year_long),sum,na.rm=T)) # umol/m2/s
   NEE = as.vector(by(df$NEE,INDICES = list(doy_long,year_long),sum,na.rm=T)) # umol/m2/s
   temperature = as.vector(by(df$TA,INDICES = list(doy_long,year_long),mean,na.rm=T)) # degrees C

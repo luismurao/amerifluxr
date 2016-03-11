@@ -34,11 +34,16 @@ vegtype = c(
 
 header <- dashboardHeader(title = "Ameriflux Explorer")
 sidebar <- dashboardSidebar(
+  includeCSS("www/custom.css"),
   sidebarMenu(
     menuItem("Explore data", tabName = "explorer", icon = icon("leaf")),
     menuItem("About the package", tabName = "help", icon = icon("question")),
     menuItem("About Ameriflux", tabName = "about", icon = icon("question")),
-    menuItem("code on GitHub", icon = icon("file-code-o"))
+    menuItem("code on GitHub", icon = icon("github"), href = "https://github.com/khufkens/amerifluxr"),
+    sidebarUserPanel(name = "Koen Hufkens",
+                     image = "https://avatars2.githubusercontent.com/u/1354258?v=3&s=460",
+                     subtitle = a("Profile on Github", href = "http://www.github.com/khufkens")
+                     )
   )
 )
 
@@ -83,10 +88,18 @@ body <- dashboardBody(
                    column(3,
                           box(width = NULL,
                               h4("Plotting options"),
-                              selectInput("productivity", "Ecosystem Productivity",c("NEE","GPP"),width="100%"),  
-                              selectInput("covariate", "Covariate",c("temperature","precipitation","VPD","PAR","RH"),width="100%"),
-                              selectInput("plot_type", "Plot Type",c("daily","yearly"),width="100%")
-                          )),
+                              fluidRow(column(6,
+                                              checkboxInput("gap_fill","Gap Filled", value = FALSE, width = NULL)),
+                                       column(6,
+                                              checkboxInput("refresh","Refresh", value = FALSE, width = NULL))
+                              ),
+                              selectInput("productivity", "Ecosystem Productivity",c("NEE","GPP"),width="100%"),
+                              selectInput("covariate", "Covariate",c("temperature (C)" = "temperature",
+                                                                     "precipitation (mm)" = "precipitation",
+                                                                     "VPD (kPa)" = "VPD",
+                                                                     "PAR (umol m-2 s-1)" = "PAR",
+                                                                     "RH (%)" = "RH"),width="100%"),
+                              selectInput("plot_type", "Plot Type",c("daily","yearly"),width="100%")                          )),
                    column(9,
                           box(width = NULL,
                               DT::dataTableOutput("table")

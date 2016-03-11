@@ -11,18 +11,23 @@
 #' [requires the rvest package for post-processing]
 #' http://phantomjs.org/download.html
 
-ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pages/"){
+ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pages/",path="./ameriflux_metadata.txt"){
   
   # read the required libraries
   require(rvest)
+  require(RCurl)
   
   # grab the OS info
   OS = Sys.info()[1]
   
   # grab the location of the package, assuming it is installed
   # in the user space (not globally)
-  #path = sprintf("%s/bin/",path.package("amerifluxr"))
-  path = "/data/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/bin/"
+  #phantomjs_path = sprintf("%s/phantomjs/",path.package("amerifluxr"))
+  if (OS == "Windows"){
+    phantomjs_path = "/Users/koen/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/phantomjs/"
+  }else{
+    phantomjs_path = "~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/phantomjs/"
+  }
   
   # subroutines for triming leading spaces
   # and converting factors to numeric
@@ -47,13 +52,13 @@ ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pag
   # run different versions of phantomjs depending on the OS
   if (OS == "Linux"){
     # process the script with phantomjs / scrapes zooniverse page
-    system(sprintf("%s./phantomjs_linux scrape.js > scrape.html",path),wait=TRUE)
+    system(sprintf("%s./phantomjs_linux scrape.js > scrape.html",phantomjs_path),wait=TRUE)
   } else if (OS == "Windows") {
     # process the script with phantomjs / scrapes zooniverse page
-    system(sprintf("%s/phantomjs.exe scrape.js > scrape.html",path),wait=TRUE)
+    shell(sprintf("%s/phantomjs.exe scrape.js > scrape.html",phantomjs_path))
   }else{
     # process the script with phantomjs / scrapes zooniverse page
-    system(sprintf("%s./phantomjs_osx scrape.js > scrape.html",path),wait=TRUE)
+    system(sprintf("%s./phantomjs_osx scrape.js > scrape.html",phantomjs_path),wait=TRUE)
   }
     
   # load html data
@@ -75,6 +80,7 @@ ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pag
   data = html_nodes(main,sel_data) %>% html_text()
   data = matrix(data,length(data)/length(header),length(header),byrow=TRUE)
   df = data.frame(data)
+  header = gsub("\\r","",header) # fix for windows bug
   colnames(df) = tolower(header)
   
   # reformat variables into correct formats (not strings)
@@ -111,10 +117,31 @@ ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pag
   # fill empty climate slots with NA
   df$climate_koeppen[which(df$climate_koeppen == "")] = NA
   
+  # create a row of sites which have data (exist on the ftp server)
+  # and which don't. I use downloader instead of rvest as I don't trust
+  # the layout to be stable enough to use rvest. string matching is
+  # robuster than using rvest (at the expense of a temporary file)
+  url = try(getURL("ftp://cdiac.ornl.gov/pub/ameriflux/data/Level2/Sites_ByID/",dirlistonly = TRUE) )
+  
+  # if the download was succesful proceed
+  if (!inherits(url,"try-error")){
+    sites = unlist(strsplit(url,"\n"))
+    sites = gsub("\r","",sites)
+    
+    # cross reference sites with the metadata table
+    df$online_data = rep("no",length(df$site_id))
+    df$online_data[which(df$site_id %in% sites)] = "yes"
+  }
+  
   # remove temporary html file and javascript
   file.remove("scrape.html")
   file.remove("scrape.js")
   
-  # return data frame
-  return(df)
+  if (is.null(path)){
+    # return data frame
+    return(df)  
+  }else{
+    # write to file
+    write.table(df,path,col.names=TRUE,row.names=FALSE,quote=FALSE,sep="|")
+  }
 }
