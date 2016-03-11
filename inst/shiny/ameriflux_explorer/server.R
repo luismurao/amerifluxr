@@ -459,6 +459,7 @@ server <- function(input, output, session){
           doy_mean = as.vector(by(doy,INDICES=doy,mean,na.rm=T))
           
           # smoothing this data here is less than ideal,
+          # but in most cases fast enough not to hinder visualization.
           # also the fixed span is not optimal but will do for now.
           fit = loess(flux ~ as.numeric(as.Date(date)),span=0.02)
           flux_smooth = predict(fit,as.numeric(as.Date(date)),se=FALSE)

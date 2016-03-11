@@ -70,5 +70,3 @@ aggregate.flux = function(df){
   # return data
   return(df)
 }
-
-test = aggregate.flux(df)
