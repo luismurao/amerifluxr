@@ -4,7 +4,8 @@
 \alias{ameriflux.info}
 \title{Grabs the ameriflux site table from the LBL site.}
 \usage{
-ameriflux.info(url = "http://ameriflux.lbl.gov/sites/site-list-and-pages/")
+ameriflux.info(url = "http://ameriflux.lbl.gov/sites/site-list-and-pages/",
+  path = "./ameriflux_metadata.txt")
 }
 \arguments{
 \item{url:}{Location of the Ameriflux site table

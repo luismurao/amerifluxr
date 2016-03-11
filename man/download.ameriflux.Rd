@@ -5,7 +5,7 @@
 \title{Grabs the ameriflux data from the ORNL site and compiles it into one
 big file.}
 \usage{
-download.ameriflux(site = "US-Ha1", gaps = TRUE)
+download.ameriflux(site = "US-Ha1", gap_fill = TRUE)
 }
 \arguments{
 \item{site:}{Amerflux site abbreviation, can be vector of multiple sites}
