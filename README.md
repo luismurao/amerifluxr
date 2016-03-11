@@ -7,6 +7,7 @@ The tool provides access to the Level2 data product, and by default compiles the
 ## Installation
 
 You can quick install the package by downloading the devtools package and running the following code:
+
 	require(devtools) # load the devtools library
 	install_github("khufkens/amerifluxr") # install the package
 
