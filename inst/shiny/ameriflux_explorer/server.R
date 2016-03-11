@@ -461,7 +461,8 @@ server <- function(input, output, session){
                     name=input$productivity,
                     line=list(color=flux_col)) %>%
           add_trace(x=date, y = covariate, mode="lines", yaxis = "y2", line=list(color=covariate_col), name = input$covariate) %>%
-          layout(xaxis = list(title="Date"), yaxis = ay1, yaxis2 = ay2, showlegend = TRUE)
+          layout(xaxis = list(title="Date"), yaxis = ay1, yaxis2 = ay2, showlegend = TRUE,
+                 title = df$site_id[as.numeric(input$table_row_last_clicked)])
       }else{
         
           # long term mean flux data
@@ -485,7 +486,8 @@ server <- function(input, output, session){
                     fill = "tonexty", line=list(width=0,color=envelope_col),
                     showlegend = TRUE, name="SD") %>%
           add_trace(x=doy,y=flux_smooth,group=year,mode="lines",showlegend = TRUE) %>%
-          layout(xaxis = list(title="DOY"), yaxis = list(title=input$productivity))
+          layout(xaxis = list(title="DOY"), yaxis = list(title=input$productivity),
+                 title = df$site_id[as.numeric(input$table_row_last_clicked)])
       }
     }
   })
