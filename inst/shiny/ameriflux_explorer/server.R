@@ -152,7 +152,7 @@ server <- function(input, output, session){
       addMarkers(lat = ~location_lat,lng = ~location_long,popup=~preview) %>%
       # Layers control
       addLayersControl(
-        baseGroups = c("OSM", "JPL"),
+        baseGroups = c("JPL", "OSM"),
         position = c("topleft"),
         options = layersControlOptions(collapsed = TRUE)
       ) %>%
