@@ -7,13 +7,12 @@ The tool provides access to the Level2 data product, and by default compiles the
 ## Installation
 
 You can quick install the package by downloading the devtools package and running the following code:
-  	require(devtools) # load the devtools library
+	require(devtools) # load the devtools library
 	install_github("khufkens/amerifluxr") # install the package
 
 ## Use
-
-  # start the gui interface by running
-  ameriflux.gui()
+	# start the gui interface by running
+	ameriflux.gui()
   
 Cached data will be downloaded to ~/ameriflux_cache, clear this directory if it gets to big.
 
