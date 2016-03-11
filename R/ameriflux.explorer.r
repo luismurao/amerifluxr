@@ -1,11 +1,11 @@
-# Start the AmerifluxR shiny interface
+#' Start the AmerifluxR shiny interface
+#' @param ... none
 #' @keywords GUI
 #' @export
 #' @examples
-#' # outputting TRUE or FALSE
-#' ameriflux_explorer()
+#' ameriflux.explorer()
 
-ameriflux_explorer <- function(){
+ameriflux.explorer <- function(){
   appDir = sprintf("%s/R/inst/shiny/ameriflux_explorer",path.package("amerifluxr"))
   shiny::runApp(appDir, display.mode = "normal",launch.browser=TRUE)
 }
