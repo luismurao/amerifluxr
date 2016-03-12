@@ -1,6 +1,6 @@
 # AmeriFluxR
 
-The AmeriFluxR is a R toolbox to facilitate easy Ameriflux Level2 data exploration and downloads through a convenient R [shiny](http://shiny.rstudio.com/) based GUI. I'll integrate support for Level3 data in the near future as well as some additional functionality to summarize the data more concisely.
+AmeriFluxR is a R toolbox to facilitate easy Ameriflux Level2 data exploration and downloads through a convenient R [shiny](http://shiny.rstudio.com/) based GUI. I'll integrate support for Level3 data in the near future as well as some additional functionality to summarize the data more concisely.
 
 ## Installation
 
