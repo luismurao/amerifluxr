@@ -12,11 +12,18 @@ machine = Sys.info()[4]
 
 # When on the machine of the developer, sideload the code locally
 # for quick reviewing of changes to the GUI
-if (machine == "squeeze" | machine == "razor"){
+if (machine == "squeeze" | machine == "Pandora.local"){
   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/download.ameriflux.r')
   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/dir.exists.r')
   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/ameriflux.info.r')
   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/aggregate.flux.r')
+  source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/read.ameriflux.r')
+  source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/smooth.ts.r')
+  source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/optimal.span.r')
+  source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/nee.transitions.r')
+  path = "/data/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/shiny/ameriflux_explorer"
+}else{
+  
 }
 
 # create temporary directory and move into it
@@ -52,8 +59,15 @@ if(m_year != c_year){
 # will change to data table later == faster
 df = as.data.frame(fread("ameriflux_metadata.txt",header=TRUE,sep="|"))
 
+myIcons <- icons(
+  iconUrl = ifelse(df$online_data == "yes",
+                   sprintf("%s/green.png",path),
+                   sprintf("%s/red.png",path)),
+  iconWidth = 30, iconHeight = 40
+)
+
 # create a character field with html to call as marker
-# popup. This includes a thumbnail of the site!
+# popup. This includes a thumbnail of the site!S
 df$preview <- apply(df,1,function(x)paste(
   "<table width=200px, border=0px>",
   "<tr>",
@@ -70,19 +84,19 @@ df$preview <- apply(df,1,function(x)paste(
   
   "<tr>",
   "<td>",
-  "Annual precip.:",x[11]," mm",
+  "Annual precip.: ",x[11]," mm",
   "</td>",
   "</tr>",
   
   "<tr>",
   "<td>",
-  "Mean Annual Temp.:",x[10]," C",
+  "Mean Annual Temp.: ",x[10]," C",
   "</td>",
   "</tr>",
   
   "<tr>",
   "<td>",
-  "Online Data:",x[13],
+  "Online Data: ",x[13],
   "</td>",
   "</tr>",
   
@@ -149,7 +163,7 @@ server <- function(input, output, session){
                attribution='Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency',
                group = "JPL") %>%
       addProviderTiles("OpenStreetMap.BlackAndWhite",group = "OSM") %>%
-      addMarkers(lat = ~location_lat,lng = ~location_long,popup=~preview) %>%
+      addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview) %>%
       # Layers control
       addLayersControl(
         baseGroups = c("JPL", "OSM"),
@@ -164,8 +178,8 @@ server <- function(input, output, session){
   observe({
     leafletProxy("map", data = filteredData()) %>%
       clearMarkers() %>%
-      addMarkers(lat = ~location_lat,lng = ~location_long,popup=~preview)
-    
+      addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview)
+      
     # update the data table in the explorer
     output$table <- DT::renderDataTable({
       tmp = filteredData()[,-c(2,14)] # drop last column
@@ -206,8 +220,8 @@ server <- function(input, output, session){
       leafletProxy("map", data = filteredData()) %>%
         clearMarkers() %>%
         clearShapes() %>%
-        addMarkers(lat = ~location_lat,lng = ~location_long,popup=~preview)
-      
+        addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview)
+        
       getValueData(filteredData())
       
       # update the climatology plot
@@ -236,8 +250,8 @@ server <- function(input, output, session){
         v1$lon <- input$map_click$lng
         leafletProxy("map", data = filteredData()) %>%
           clearMarkers() %>% 
-          addMarkers(lat = ~location_lat,lng = ~location_long,popup=~preview)%>%
-        addCircleMarkers(lng=isolate(v1$lon),lat=isolate(v1$lat),color="red",radius=3,fillOpacity=1,stroke=FALSE)
+          addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview) %>%
+          addCircleMarkers(lng=isolate(v1$lon),lat=isolate(v1$lat),color="red",radius=3,fillOpacity=1,stroke=FALSE)
       }
     }
     
@@ -253,7 +267,7 @@ server <- function(input, output, session){
         # update the map
         leafletProxy("map", data = tmp) %>%
           clearMarkers() %>% 
-          addMarkers(lat = ~location_lat,lng = ~location_long,popup=~preview) %>%
+          addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview) %>%
           addRectangles(
             lng1=isolate(v1$lon), lat1=isolate(v1$lat),
             lng2=isolate(v2$lon), lat2=isolate(v2$lat),
@@ -294,8 +308,8 @@ server <- function(input, output, session){
         leafletProxy("map", data = filteredData()) %>%
           clearMarkers() %>%
           clearShapes() %>%
-          addMarkers(lat = ~location_lat,lng = ~location_long,popup=~preview)
-        
+          addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview)
+          
         # update the climatology plot
         output$test <- renderPlot({
           par(mar=c(4,4,1,1))
@@ -314,7 +328,7 @@ server <- function(input, output, session){
     }
   })
   
-  downloadData <- function(myrow,gaps,refresh){
+  downloadData <- function(myrow,gaps,refresh,bci){
     
     # if nothing is selected return NULL
     if (length(myrow)==0){
@@ -345,7 +359,7 @@ server <- function(input, output, session){
     
     # download data message
     progress$set(message = "Status:", value = 0)
-    progress$set(value = 0.3,detail = "Downloading Ameriflux data")
+    progress$set(value = 0.2,detail = "Downloading Ameriflux data")
     
     # download phenocam data from the server
     # first formulate a url, then download all data
@@ -367,39 +381,58 @@ server <- function(input, output, session){
     
     # if the download fails, print NULL
     if(inherits(status,"try-error")){
-      progress$set(value=0.4,detail = "download error!")
+      progress$set(value=0.3,detail = "download error!")
       return(NULL)
     }else{
       
       file = list.files(getwd(),pattern=sprintf("^AMF_%s_.*_%s\\.txt$",site,gaps_label))[1]
       
       # read the data
-      header = fread(file,skip=16,nrows=1,header=FALSE,sep=",")
-      data = fread(file,skip=20,header=FALSE,sep=",")
-      colnames(data)=as.character(header)
+      data = read.ameriflux(file)
       
       # Aggregating to daily values
-      progress$set(value=0.5,detail = "aggregating to daily values")
+      progress$set(value=0.4,detail = "aggregating to daily values")
       plot_data = aggregate.flux(data)
-      return(plot_data)
+      
+      # smooth productivity values
+      progress$set(value=0.5,detail = "smoothing data")
+      
+      # by default use BIC smoother (takes longer but makes more sense)
+      smooth_gpp = smooth.ts(plot_data,value="GPP") 
+      smooth_nee = smooth.ts(plot_data,value="NEE")
+      
+      # combine into one data frame
+      plot_data = data.frame(plot_data,smooth_gpp,smooth_nee)
+      
+      # nee transition dates
+      transitions = nee.transitions(plot_data)
+      
+      # combine data in nested list
+      output = list(plot_data,transitions)
+      
+      # return this structure
+      return(output)
     }
   }
   
   # observe the state of the table, if changed update the data
-  inputData = reactive({downloadData(as.numeric(input$table_row_last_clicked),input$gap_fill,input$refresh)})
+  inputData = reactive({downloadData(as.numeric(input$table_row_last_clicked),input$gap_fill,input$refresh,input$smoothing)})
   
-  # plot the data 
+  # plot the data / MESSY CLEAN UP!!!
   output$time_series_plot <- renderPlotly({
     
     # set colours
     labels_covariate_col = "rgb(231,41,138)"
     covariate_col = "rgba(231,41,138,0.4)"
     flux_col = "rgba(102,166,30,0.8)"
-    envelope_col = "rgba(128,128,128,0.2)"
+    envelope_col = "rgba(128,128,128,0.05)"
     ltm_col = "rgba(128,128,128,0.8)"
-    
+        
     # load data
-    plot_data = inputData()
+    
+    data = inputData()    
+    plot_data = data[[1]]
+    transition_data = data[[2]]
     
     if (is.null(plot_data)){
       
@@ -420,9 +453,10 @@ server <- function(input, output, session){
       year = plot_data$year
       doy = plot_data$doy
       flux = plot_data[,which(colnames(plot_data)==input$productivity)]
+      flux_smooth = plot_data[,which(colnames(plot_data)==sprintf("%s_smooth",input$productivity))]
       
       # check the plotting type
-      if (input$plot_type == "daily"){        
+      if (input$plot_type == "daily"){
         
         # include cummulative values in plotting, should be easier to interpret
         # the yearly summary plots
@@ -451,19 +485,13 @@ server <- function(input, output, session){
           add_trace(x=date, y = covariate, mode="lines", yaxis = "y2", line=list(color=covariate_col), name = input$covariate) %>%
           layout(xaxis = list(title="Date"), yaxis = ay1, yaxis2 = ay2, showlegend = TRUE,
                  title = df$site_id[as.numeric(input$table_row_last_clicked)])
-      }else{
+      } else if (input$plot_type == "yearly"){
         
           # long term mean flux data
           flux_mean = as.vector(by(flux,INDICES=doy,mean,na.rm=T))
           flux_sd = as.vector(by(flux,INDICES=doy,sd,na.rm=T))
           doy_mean = as.vector(by(doy,INDICES=doy,mean,na.rm=T))
-          
-          # smoothing this data here is less than ideal,
-          # but in most cases fast enough not to hinder visualization.
-          # also the fixed span is not optimal but will do for now.
-          fit = loess(flux ~ as.numeric(as.Date(date)),span=0.02)
-          flux_smooth = predict(fit,as.numeric(as.Date(date)),se=FALSE)
-          
+
           p = plot_ly(x=doy_mean, y = flux_mean, mode="lines",
                       name = "LTM",
                       line=list(color=ltm_col),
@@ -477,7 +505,54 @@ server <- function(input, output, session){
           add_trace(x=doy,y=flux_smooth,group=year,mode="lines",showlegend = TRUE) %>%
           layout(xaxis = list(title="DOY"), yaxis = list(title=input$productivity),
                  title = df$site_id[as.numeric(input$table_row_last_clicked)])
+      } else if (input$plot_type == "nee_phen"){
+        
+        sos_col = "rgb(231,41,138)"
+        eos_col = "rgba(231,41,138,0.4)"
+        gsl_col = "rgba(102,166,30,0.8)"
+        
+        ay1 = list(
+          title="DOY",
+          showgrid=FALSE
+        )
+        
+        ay2 <- list(
+          overlaying = "y",
+          title = "Days",
+          side = "left",
+          showgrid=FALSE
+        )
+        
+        # regression stats
+        reg_sos = lm(transition_data$SOS_NEE_smooth ~ transition_data$year)
+        reg_eos = lm(transition_data$EOS_NEE_smooth ~ transition_data$year)
+        reg_gsl = lm(transition_data$GSL_NEE_smooth ~ transition_data$year)
+        
+        # summaries
+        reg_gsl_sum = summary(reg_gsl)
+        reg_eos_sum = summary(reg_eos)
+        reg_sos_sum = summary(reg_sos)
+        
+        # r-squared and slope
+        r2_gsl=  round(reg_gsl_sum$r.squared,2)
+        slp_gsl = round(reg_gsl_sum$coefficients[2,1],2)
+        r2_sos= round(reg_sos_sum$r.squared,2)
+        slp_sos = round(reg_sos_sum$coefficients[2,1],2)
+        r2_eos = round(reg_eos_sum$r.squared,2)
+        slp_eos = round(reg_eos_sum$coefficients[2,1],2)
+        
+        p = subplot(plot_ly(x = transition_data$year, y = transition_data$SOS_NEE_smooth,,marker=list(symbol="square"),
+                            mode = "markers", name = "SOS",yaxis="y1",title="NEE source-sink phenology") %>%
+                      add_trace(y=reg_sos$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_sos,slp_sos), line = list(width = 2)) %>%          
+                      add_trace(x=transition_data$year,y = transition_data$EOS_NEE_smooth,mode="markers",name="EOS",yaxis="y1") %>%
+                      add_trace(y=reg_eos$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_eos,slp_eos), line = list(width = 2)),
+                    plot_ly(x=transition_data$year,y = transition_data$GSL_NEE_smooth,mode="markers",name="GSL",title="NEE source-sink phenology") %>%
+                      add_trace(y=reg_gsl$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_gsl,slp_gsl), line = list(width = 2)),
+                    margin=0.05) %>%
+          layout(xaxis = list(title="Year"), yaxis = ay1, xaxis2 = list(title="Year"),title=df$site_id[as.numeric(input$table_row_last_clicked)],
+                 yaxis2 = ay2, showlegend = TRUE)
       }
     }
-  })
+  }) # end plot function
+  
 } # server function end

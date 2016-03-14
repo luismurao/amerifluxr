@@ -33,7 +33,7 @@ vegtype = c(
 
 header <- dashboardHeader(title = "Ameriflux Explorer")
 sidebar <- dashboardSidebar(
-  includeCSS("www/custom.css"),
+  includeCSS("custom.css"),
   sidebarMenu(
     menuItem("Explore data", tabName = "explorer", icon = icon("leaf")),
     menuItem("About Ameriflux", tabName = "about", icon = icon("question")),
@@ -55,7 +55,6 @@ body <- dashboardBody(
       tabBox(
         side = "left",
         width=12,
-        #height="90%",
         selected = "Map & Site selection",
         tabPanel("Map & Site selection",
                  tags$head(tags$style("#map{height:68vh !important;}")),
@@ -71,7 +70,6 @@ body <- dashboardBody(
                    column(12,
                           box(width=NULL,
                               leafletOutput("map"),
-                              # Shiny versions prior to 0.11 should use class="modal" instead.
                               absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
                                             draggable = TRUE, top = 300, left = "auto", right = 70, bottom = "auto",
                                             width = 320, height = 350,
@@ -84,29 +82,28 @@ body <- dashboardBody(
         ),
         tabPanel("Data Explorer",
                  fluidRow(
-                   column(3,
+                   column(4,
                           box(width = NULL,
-                              h4("Plotting options"),
                               fluidRow(column(6,
                                               checkboxInput("gap_fill","Gap Filled", value = FALSE, width = NULL)),
                                        column(6,
                                               checkboxInput("refresh","Refresh", value = FALSE, width = NULL))
-                              ),
+                                       ),
                               selectInput("productivity", "Ecosystem Productivity",c("NEE (gC m-2 d-1)"="NEE","GPP (gC m-2 d-1)"="GPP"),width="100%"),
                               selectInput("covariate", "Covariate",c("temperature (C)" = "temperature",
                                                                      "precipitation (mm)" = "precipitation",
                                                                      "VPD (kPa)" = "VPD",
                                                                      "PAR (umol m-2 d-1)" = "PAR",
                                                                      "RH (%)" = "RH"),width="100%"),
-                              selectInput("plot_type", "Plot Type",c("daily","yearly"),width="100%")                          )),
-                   column(9,
+                              selectInput("plot_type", "Plot Type",c("Time Series"="daily","Yearly Summary"="yearly","NEE phenology"="nee_phen"),width="100%"))),
+                   column(8,
                           box(width = NULL,
                               DT::dataTableOutput("table")
                           ))
                  ),
                  fluidRow(
                    column(12,
-                          box(width = NULL,height="50%",
+                          box(width = NULL,
                               plotlyOutput("time_series_plot")
                           )
                    ) 

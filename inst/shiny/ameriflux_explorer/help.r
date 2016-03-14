@@ -16,6 +16,5 @@ tags$html(
       tags$li('For continued development consider buying me coffee by tipping my tip jar on my',tags$a(href="http://www.khufkens.com/downloads/", "software page",target="_blank"),'.'),
       tags$li('... or cite / acknowledging the package.')
     )
-    
-    )
+  )
 )

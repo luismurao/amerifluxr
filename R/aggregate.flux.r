@@ -11,7 +11,7 @@
 aggregate.flux = function(df){
   
   # load required libraries
-  require(data.table)
+  #require(data.table)
   
   # constants
   sec_hh = 1800 # seconds in a half hour
@@ -24,10 +24,7 @@ aggregate.flux = function(df){
   # input data to df
   if(!is.data.frame(df)){
     if(file.exists(df)){
-      # pluck real header from the phenocam file
-      header = fread(df,skip=16,nrows=1,header=FALSE,sep=",")
-      df = fread(df,skip=20,header=FALSE,sep=",")
-      colnames(df)=as.character(header)
+      df = read.ameriflux(df)
     }else{
       stop('Faulty data file!')
     }
