@@ -12,6 +12,7 @@ tags$html(
       tags$li('The map might load slowly as it pulls in metadata from the Ameriflux server\'s javascript based site table (no API?). Subsequent loads will be faster as the data is cached, but will be automatically refreshed yearly.'),
       tags$li('All data is stored in a local "ameriflux_cache" folder in your home directory. You may delete this folder at any time (although it will be recreated when starting the gui).'),
       tags$li('Mark the "refresh" tick box to re-download all data and refresh the data stored in your cache directory.'),
+      tags$li('The NEE phenology plot type displays start and end of season as well as the growing season length based on source-sink transition dates.'),
       tags$li('The site years listed on top of the map are estimates using back filled dates. If the final date is not provided, continuous measurements until present are assumed (creating a bias towards high estimates)'),
       tags$li('For continued development consider buying me coffee by tipping my tip jar on my',tags$a(href="http://www.khufkens.com/downloads/", "software page",target="_blank"),'.'),
       tags$li('... or cite / acknowledging the package.')
