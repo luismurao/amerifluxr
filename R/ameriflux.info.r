@@ -27,9 +27,7 @@ ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pag
   
   # run local code if debugging
   if (machine == "squeeze" | machine == "Pandora.local"){
-    if (OS == "Windows"){
       phantomjs_path = "~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/phantomjs/"
-    }
   }
   
   # subroutines for triming leading spaces
@@ -58,7 +56,7 @@ ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pag
     system(sprintf("%s./phantomjs_linux scrape.js > scrape.html",phantomjs_path),wait=TRUE)
   } else if (OS == "Windows") {
     # process the script with phantomjs / scrapes zooniverse page
-    shell(sprintf("%s/phantomjs.exe scrape.js > scrape.html",phantomjs_path))
+    shell(sprintf("%sphantomjs.exe scrape.js > scrape.html",phantomjs_path))
   }else{
     # process the script with phantomjs / scrapes zooniverse page
     system(sprintf("%s./phantomjs_osx scrape.js > scrape.html",phantomjs_path),wait=TRUE)
