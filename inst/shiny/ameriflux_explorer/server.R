@@ -179,7 +179,7 @@ server <- function(input, output, session){
     leafletProxy("map", data = filteredData()) %>%
       clearMarkers() %>%
       addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview)
-      
+    
     # update the data table in the explorer
     output$table <- DT::renderDataTable({
       tmp = filteredData()[,-c(2,14)] # drop last column
@@ -221,7 +221,7 @@ server <- function(input, output, session){
         clearMarkers() %>%
         clearShapes() %>%
         addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview)
-        
+      
       getValueData(filteredData())
       
       # update the climatology plot
@@ -309,7 +309,7 @@ server <- function(input, output, session){
           clearMarkers() %>%
           clearShapes() %>%
           addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview)
-          
+        
         # update the climatology plot
         output$test <- renderPlot({
           par(mar=c(4,4,1,1))
@@ -370,7 +370,7 @@ server <- function(input, output, session){
     
     # if the file does not exist, download it
     if (is.na(status)){
-        status = try(download.ameriflux(site = site,gap_fill=gaps))
+      status = try(download.ameriflux(site = site,gap_fill=gaps))
     }
     
     # if refresh is TRUE, force the download of the data
@@ -398,14 +398,27 @@ server <- function(input, output, session){
       progress$set(value=0.5,detail = "smoothing data")
       
       # by default use BIC smoother (takes longer but makes more sense)
-      smooth_gpp = smooth.ts(plot_data,value="GPP") 
-      smooth_nee = smooth.ts(plot_data,value="NEE")
+      # CLEAN UP CODE
+      smooth_gpp = try(smooth.ts(plot_data,value="GPP"))
+      if(inherits(smooth_gpp,"try-error")){
+        smooth_gpp = matrix(NA,dim(plot_data)[1],2)
+        colnames(smooth_gpp) = c("GPP_smooth","GPP_se")
+      }
+      smooth_nee = try(smooth.ts(plot_data,value="NEE"))
+      if(inherits(smooth_nee,"try-error")){
+        smooth_nee = matrix(NA,dim(plot_data)[1],2)
+        colnames(smooth_nee) = c("NEE_smooth","NEE_se")
+      }
       
       # combine into one data frame
       plot_data = data.frame(plot_data,smooth_gpp,smooth_nee)
       
       # nee transition dates
-      transitions = nee.transitions(plot_data)
+      if (any(!is.na(plot_data$NEE_smooth))){
+        transitions = nee.transitions(plot_data)
+      }else{
+        transitions = NULL
+      }
       
       # combine data in nested list
       output = list(plot_data,transitions)
@@ -427,7 +440,7 @@ server <- function(input, output, session){
     flux_col = "rgba(102,166,30,0.8)"
     envelope_col = "rgba(128,128,128,0.05)"
     ltm_col = "rgba(128,128,128,0.8)"
-        
+    
     # load data
     
     data = inputData()    
@@ -487,15 +500,15 @@ server <- function(input, output, session){
                  title = df$site_id[as.numeric(input$table_row_last_clicked)])
       } else if (input$plot_type == "yearly"){
         
-          # long term mean flux data
-          flux_mean = as.vector(by(flux,INDICES=doy,mean,na.rm=T))
-          flux_sd = as.vector(by(flux,INDICES=doy,sd,na.rm=T))
-          doy_mean = as.vector(by(doy,INDICES=doy,mean,na.rm=T))
-
-          p = plot_ly(x=doy_mean, y = flux_mean, mode="lines",
-                      name = "LTM",
-                      line=list(color=ltm_col),
-                      inherit=FALSE) %>%
+        # long term mean flux data
+        flux_mean = as.vector(by(flux,INDICES=doy,mean,na.rm=T))
+        flux_sd = as.vector(by(flux,INDICES=doy,sd,na.rm=T))
+        doy_mean = as.vector(by(doy,INDICES=doy,mean,na.rm=T))
+        
+        p = plot_ly(x=doy_mean, y = flux_mean, mode="lines",
+                    name = "LTM",
+                    line=list(color=ltm_col),
+                    inherit=FALSE) %>%
           add_trace(x=doy_mean, y = flux_mean - flux_sd, mode = "lines",
                     fill = "none", line=list(width=0,color=envelope_col),
                     showlegend = FALSE, name="SD") %>%
@@ -505,52 +518,65 @@ server <- function(input, output, session){
           add_trace(x=doy,y=flux_smooth,group=year,mode="lines",showlegend = TRUE) %>%
           layout(xaxis = list(title="DOY"), yaxis = list(title=input$productivity),
                  title = df$site_id[as.numeric(input$table_row_last_clicked)])
+        
       } else if (input$plot_type == "nee_phen"){
-        
-        sos_col = "rgb(231,41,138)"
-        eos_col = "rgba(231,41,138,0.4)"
-        gsl_col = "rgba(102,166,30,0.8)"
-        
-        ay1 = list(
-          title="DOY",
-          showgrid=FALSE
-        )
-        
-        ay2 <- list(
-          overlaying = "y",
-          title = "Days",
-          side = "left",
-          showgrid=FALSE
-        )
-        
-        # regression stats
-        reg_sos = lm(transition_data$SOS_NEE_smooth ~ transition_data$year)
-        reg_eos = lm(transition_data$EOS_NEE_smooth ~ transition_data$year)
-        reg_gsl = lm(transition_data$GSL_NEE_smooth ~ transition_data$year)
-        
-        # summaries
-        reg_gsl_sum = summary(reg_gsl)
-        reg_eos_sum = summary(reg_eos)
-        reg_sos_sum = summary(reg_sos)
-        
-        # r-squared and slope
-        r2_gsl=  round(reg_gsl_sum$r.squared,2)
-        slp_gsl = round(reg_gsl_sum$coefficients[2,1],2)
-        r2_sos= round(reg_sos_sum$r.squared,2)
-        slp_sos = round(reg_sos_sum$coefficients[2,1],2)
-        r2_eos = round(reg_eos_sum$r.squared,2)
-        slp_eos = round(reg_eos_sum$coefficients[2,1],2)
-        
-        p = subplot(plot_ly(x = transition_data$year, y = transition_data$SOS_NEE_smooth,,marker=list(symbol="square"),
-                            mode = "markers", name = "SOS",yaxis="y1",title="NEE source-sink phenology") %>%
-                      add_trace(y=reg_sos$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_sos,slp_sos), line = list(width = 2)) %>%          
-                      add_trace(x=transition_data$year,y = transition_data$EOS_NEE_smooth,mode="markers",name="EOS",yaxis="y1") %>%
-                      add_trace(y=reg_eos$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_eos,slp_eos), line = list(width = 2)),
-                    plot_ly(x=transition_data$year,y = transition_data$GSL_NEE_smooth,mode="markers",name="GSL",title="NEE source-sink phenology") %>%
-                      add_trace(y=reg_gsl$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_gsl,slp_gsl), line = list(width = 2)),
-                    margin=0.05) %>%
-          layout(xaxis = list(title="Year"), yaxis = ay1, xaxis2 = list(title="Year"),title=df$site_id[as.numeric(input$table_row_last_clicked)],
-                 yaxis2 = ay2, showlegend = TRUE)
+        if (is.null(transition_data)){
+          # format x-axis
+          ax <- list(
+            title = "",
+            zeroline = FALSE,
+            showline = FALSE,
+            showticklabels = FALSE,
+            showgrid = FALSE
+          )
+          p = plot_ly(x = 0, y = 0, text = "NO NEE data available", mode = "text") %>% layout(xaxis = ax, yaxis = ax)
+        }else{
+          
+          sos_col = "rgb(231,41,138)"
+          eos_col = "rgba(231,41,138,0.4)"
+          gsl_col = "rgba(102,166,30,0.8)"
+          
+          ay1 = list(
+            title="DOY",
+            showgrid=FALSE
+          )
+          
+          ay2 <- list(
+            overlaying = "y",
+            title = "Days",
+            side = "left",
+            showgrid=FALSE
+          )
+          
+          # regression stats
+          reg_sos = lm(transition_data$SOS_NEE_smooth ~ transition_data$year)
+          reg_eos = lm(transition_data$EOS_NEE_smooth ~ transition_data$year)
+          reg_gsl = lm(transition_data$GSL_NEE_smooth ~ transition_data$year)
+          
+          # summaries
+          reg_gsl_sum = summary(reg_gsl)
+          reg_eos_sum = summary(reg_eos)
+          reg_sos_sum = summary(reg_sos)
+          
+          # r-squared and slope
+          r2_gsl=  round(reg_gsl_sum$r.squared,2)
+          slp_gsl = round(reg_gsl_sum$coefficients[2,1],2)
+          r2_sos= round(reg_sos_sum$r.squared,2)
+          slp_sos = round(reg_sos_sum$coefficients[2,1],2)
+          r2_eos = round(reg_eos_sum$r.squared,2)
+          slp_eos = round(reg_eos_sum$coefficients[2,1],2)
+          
+          p = subplot(plot_ly(x = transition_data$year, y = transition_data$SOS_NEE_smooth,,marker=list(symbol="square"),
+                              mode = "markers", name = "SOS",yaxis="y1",title="NEE source-sink phenology") %>%
+                        add_trace(y=reg_sos$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_sos,slp_sos), line = list(width = 2)) %>%          
+                        add_trace(x=transition_data$year,y = transition_data$EOS_NEE_smooth,mode="markers",name="EOS",yaxis="y1") %>%
+                        add_trace(y=reg_eos$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_eos,slp_eos), line = list(width = 2)),
+                      plot_ly(x=transition_data$year,y = transition_data$GSL_NEE_smooth,mode="markers",name="GSL",title="NEE source-sink phenology") %>%
+                        add_trace(y=reg_gsl$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_gsl,slp_gsl), line = list(width = 2)),
+                      margin=0.05) %>%
+            layout(xaxis = list(title="Year"), yaxis = ay1, xaxis2 = list(title="Year"),title=df$site_id[as.numeric(input$table_row_last_clicked)],
+                   yaxis2 = ay2, showlegend = TRUE)
+        }
       }
     }
   }) # end plot function
