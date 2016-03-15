@@ -113,7 +113,13 @@ ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pag
   # fill in the end years on the assumption that
   # where there is a start year but no end year (NA)
   # the measurements are still ongoing
-  df$tower_end = as.vector(apply(df,1,function(x,...){if(!is.na(x[3]) & is.na(x[4]) ){return(as.numeric(format(Sys.time(), "%Y")))}else{as.numeric(x[4])}}))
+  df$tower_end = as.vector(apply(df,1,function(x,...){
+    if(!is.na(x[3]) & is.na(x[4]) ){
+        return(as.numeric(format(Sys.time(), "%Y")))
+      }else{
+        as.numeric(x[4])
+      }
+    }))
   
   # now we have a proper end date, calculate the site years
   # assume same ending year is a full season (hence + 1)
