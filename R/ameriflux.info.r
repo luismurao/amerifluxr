@@ -19,14 +19,19 @@ ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pag
   
   # grab the OS info
   OS = Sys.info()[1]
+  machine = Sys.info()[4]
   
   # grab the location of the package, assuming it is installed
   # in the user space (not globally)
-  #phantomjs_path = sprintf("%s/phantomjs/",path.package("amerifluxr"))
-  if (OS == "Windows"){
-    phantomjs_path = "/Users/koen/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/phantomjs/"
-  }else{
-    phantomjs_path = "~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/phantomjs/"
+  phantomjs_path = sprintf("%s/phantomjs/",path.package("amerifluxr"))
+  
+  # run local code if debugging
+  if (machine == "squeeze" | machine == "Pandora.local"){
+    if (OS == "Windows"){
+      phantomjs_path = "/Users/koen/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/phantomjs/"
+    }else{
+      phantomjs_path = "~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/phantomjs/"
+    }
   }
   
   # subroutines for triming leading spaces
@@ -60,7 +65,7 @@ ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pag
     # process the script with phantomjs / scrapes zooniverse page
     system(sprintf("%s./phantomjs_osx scrape.js > scrape.html",phantomjs_path),wait=TRUE)
   }
-    
+  
   # load html data
   main = read_html("scrape.html")
   
