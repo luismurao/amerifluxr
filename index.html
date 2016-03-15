@@ -56,7 +56,8 @@ install_github("khufkens/amerifluxr")
 
 <p>Most people will prefer the GUI to explore data on the fly. To envoke the GUI use the following command:</p>
 
-<pre><code>ameriflux.explorer()
+<pre><code>require(amerifluxr)
+ameriflux.explorer()
 </code></pre>
 
 <p>This will start a shiny application with an R backend in your default browser. Cached data will be downloaded to ~/ameriflux_cache, clear this directory if it gets to big.</p>
@@ -82,6 +83,11 @@ data = ameriflux.info(path=NULL) # export to data frame
 <p>" Those who use AmeriFlux Network data for their research are strongly encouraged to acknowledge both the site principal investigators who contributed the data they use, and the support that the AmeriFlux Network data processing and archival receive from the U.S. DOE. Suggested acknowledgment:</p>
 
 <p>We acknowledge the following AmeriFlux sites for their data records: site IDs. In addition, funding for AmeriFlux data resources was provided by the U.S. Department of Energy’s Office of Science."</p>
+
+<h1>
+<a id="acknowledgements" class="anchor" href="#acknowledgements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Acknowledgements</h1>
+
+<p>This project was in part supported by the National Science Foundation’s Macro-system Biology Program (award EF-1065029).</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/khufkens">khufkens</a></p>
