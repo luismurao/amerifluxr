@@ -9,6 +9,7 @@ require(data.table) # loads data far faster than read.table()
 # grab the OS info
 OS = Sys.info()[1]
 machine = Sys.info()[4]
+path = sprintf("%s/shiny/ameriflux_explorer",path.package("amerifluxr"))
 
 # When on the machine of the developer, sideload the code locally
 # for quick reviewing of changes to the GUI

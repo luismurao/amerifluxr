@@ -28,8 +28,6 @@ ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pag
   # run local code if debugging
   if (machine == "squeeze" | machine == "Pandora.local"){
     if (OS == "Windows"){
-      phantomjs_path = "/Users/koen/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/phantomjs/"
-    }else{
       phantomjs_path = "~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/phantomjs/"
     }
   }
