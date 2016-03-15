@@ -399,12 +399,12 @@ server <- function(input, output, session){
       
       # by default use BIC smoother (takes longer but makes more sense)
       # CLEAN UP CODE
-      smooth_gpp = try(smooth.ts(plot_data,value="GPP"))
+      smooth_gpp = try(smooth.ts(plot_data,value="GPP"),silent=TRUE)
       if(inherits(smooth_gpp,"try-error")){
         smooth_gpp = matrix(NA,dim(plot_data)[1],2)
         colnames(smooth_gpp) = c("GPP_smooth","GPP_se")
       }
-      smooth_nee = try(smooth.ts(plot_data,value="NEE"))
+      smooth_nee = try(smooth.ts(plot_data,value="NEE"),silent=TRUE)
       if(inherits(smooth_nee,"try-error")){
         smooth_nee = matrix(NA,dim(plot_data)[1],2)
         colnames(smooth_nee) = c("NEE_smooth","NEE_se")
