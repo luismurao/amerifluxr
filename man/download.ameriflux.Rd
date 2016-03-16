@@ -2,8 +2,8 @@
 % Please edit documentation in R/download.ameriflux.r
 \name{download.ameriflux}
 \alias{download.ameriflux}
-\title{Grabs the ameriflux data from the ORNL site and compiles it into one
-big file.}
+\title{Grabs the Ameriflux Level2 data from the ORNL site and compiles it into one
+easy to use file.}
 \usage{
 download.ameriflux(site = "US-Ha1", gap_fill = TRUE)
 }
@@ -14,8 +14,7 @@ download.ameriflux(site = "US-Ha1", gap_fill = TRUE)
 (default is TRUE, allow no gaps)}
 }
 \description{
-Grabs the ameriflux data from the ORNL site and compiles it into one
-big file.
+(future versions will include Level3)
 }
 \examples{
 # with defaults, outputting a data frame
