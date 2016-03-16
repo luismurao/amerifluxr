@@ -40,7 +40,7 @@ setwd("~/ameriflux_cache")
 # grab the latest site information from the Ameriflux site.
 # use the metadata file if present and not older than 1 year!
 if (!file.exists("ameriflux_metadata.txt")){
-  ameriflux.info() 
+  ameriflux.info(path="./ameriflux_metadata.txt") 
 }
 
 # grab the file info from the metadata file and compare

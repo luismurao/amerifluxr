@@ -11,7 +11,7 @@
 #' [requires the rvest package for post-processing]
 #' http://phantomjs.org/download.html
 
-ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pages/",path="./ameriflux_metadata.txt"){
+ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pages/",path=NULL){
   
   # read the required libraries
   require(rvest)
