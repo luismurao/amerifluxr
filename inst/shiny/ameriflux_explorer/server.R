@@ -458,7 +458,17 @@ server <- function(input, output, session){
         showticklabels = FALSE,
         showgrid = FALSE
       )
-      p = plot_ly(x = 0, y = 0, text = "NO DATA AVAILABLE - CONTACT SITE PI", mode = "text") %>% layout(xaxis = ax, yaxis = ax)
+      
+      if (length(input$table_row_last_clicked) != 0){
+        p = plot_ly(x = 0, y = 0, 
+                    text = "NO DATA AVAILABLE: CONTACT SITE PI, OR SELECT A NEW SITE FOR PLOTTING", mode = "text") %>%
+          layout(xaxis = ax, yaxis = ax)
+      }else{
+        p = plot_ly(x = 0, y = 0, 
+                    text = "SELECT A SITE FOR PLOTTING", mode = "text") %>%
+          layout(xaxis = ax, yaxis = ax)
+      }
+            
     }else{
       
       # subset data according to input / for some reason I can't call the
