@@ -8,7 +8,7 @@ AmeriFluxR is a R toolbox to facilitate easy Ameriflux Level2 data exploration a
 
 You can quick install the package by installing the following dependencies
 
-	install.packages(c("rvest","data.table","RCurl","DT","shiny","shinydashboard","leaflet","plotly","devtools"))
+	install.packages(c("rvest","data.table","curl","RCurl","DT","shiny","shinydashboard","leaflet","plotly","devtools"))
 
 and downloading the package from the github repository
 
