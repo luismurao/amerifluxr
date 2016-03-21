@@ -23,8 +23,6 @@ if (machine == "squeeze" | machine == "Pandora.local"){
   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/optimal.span.r')
   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/nee.transitions.r')
   path = "/data/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/shiny/ameriflux_explorer"
-}else{
-  
 }
 
 # create temporary directory and move into it
@@ -459,6 +457,8 @@ server <- function(input, output, session){
         showgrid = FALSE
       )
       
+      # Error message depending on the state of the table
+      # if selected and no data, or no selection
       if (length(input$table_row_last_clicked) != 0){
         p = plot_ly(x = 0, y = 0, 
                     text = "NO DATA AVAILABLE: CONTACT SITE PI, OR SELECT A NEW SITE FOR PLOTTING", mode = "text") %>%

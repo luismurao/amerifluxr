@@ -46,7 +46,7 @@ ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pag
                      window.setTimeout(function () {
                      console.log(page.content);
                      phantom.exit();
-                     }, 1000); // Change timeout to render the page
+                     }, 3000); // Change timeout to render the page
                      }
                      });", url), con="scrape.js")
   
