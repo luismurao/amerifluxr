@@ -9,7 +9,6 @@ require(data.table) # loads data far faster than read.table()
 # grab the OS info
 OS = Sys.info()[1]
 machine = Sys.info()[4]
-path = sprintf("%s/shiny/ameriflux_explorer",path.package("amerifluxr"))
 
 # When on the machine of the developer, sideload the code locally
 # for quick reviewing of changes to the GUI
@@ -23,6 +22,8 @@ if (machine == "squeeze" | machine == "Pandora.local"){
   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/optimal.span.r')
   source('~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/nee.transitions.r')
   path = "/data/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/shiny/ameriflux_explorer"
+}else{  
+  path = sprintf("%s/shiny/ameriflux_explorer",path.package("amerifluxr"))
 }
 
 # create temporary directory and move into it
@@ -577,14 +578,16 @@ server <- function(input, output, session){
           r2_eos = round(reg_eos_sum$r.squared,2)
           slp_eos = round(reg_eos_sum$coefficients[2,1],2)
           
-          p = subplot(plot_ly(x = transition_data$year, y = transition_data$SOS_NEE_smooth,,marker=list(symbol="square"),
+          p1 = plot_ly(x = transition_data$year, y = transition_data$SOS_NEE_smooth,marker=list(symbol="square"),
                               mode = "markers", name = "SOS",yaxis="y1",title="NEE source-sink phenology") %>%
-                        add_trace(y=reg_sos$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_sos,slp_sos), line = list(width = 2)) %>%          
-                        add_trace(x=transition_data$year,y = transition_data$EOS_NEE_smooth,mode="markers",name="EOS",yaxis="y1") %>%
-                        add_trace(y=reg_eos$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_eos,slp_eos), line = list(width = 2)),
-                      plot_ly(x=transition_data$year,y = transition_data$GSL_NEE_smooth,mode="markers",name="GSL",title="NEE source-sink phenology") %>%
-                        add_trace(y=reg_gsl$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_gsl,slp_gsl), line = list(width = 2)),
-                      margin=0.05) %>%
+            add_trace(x=transition_data$year,y = transition_data$EOS_NEE_smooth,mode="markers",name="EOS",yaxis="y1") %>%
+            add_trace(x=transition_data$year, y=reg_sos$fitted.values, mode = "lines", name = sprintf("R2: %s| slope: %s",r2_sos,slp_sos), line = list(width = 2),yaxis="y1") %>%          
+            add_trace(x=transition_data$year, y=reg_eos$fitted.values, mode = "lines", name = sprintf("R2: %s| slope: %s",r2_eos,slp_eos), line = list(width = 2),yaxis="y1")
+                        
+          p2 = plot_ly(x=transition_data$year,y = transition_data$GSL_NEE_smooth,mode="markers",name="GSL",title="NEE source-sink phenology") %>%
+                        add_trace(x=transition_data$year,y=reg_gsl$fitted.values, type = "scatter", mode = "lines", name = sprintf("R2: %s| slope: %s",r2_gsl,slp_gsl), line = list(width = 2))
+                      
+          p = subplot(p1,p2,margin=0.05) %>%
             layout(xaxis = list(title="Year"), yaxis = ay1, xaxis2 = list(title="Year"),title=df$site_id[as.numeric(input$table_row_last_clicked)],
                    yaxis2 = ay2, showlegend = TRUE)
         }
