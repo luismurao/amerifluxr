@@ -1,4 +1,4 @@
-#------------- load libraries / source files (temporary) ------------------------------------------------
+# load libraries
 require(shiny)
 require(shinydashboard)
 require(leaflet)
@@ -29,7 +29,7 @@ vegtype = c(
   "Cropland/Natural vegetation mosaic" = "MOS"
 )
 
-# interface elements ------------------------------------------------------------------------------------
+# interface elements
 
 header <- dashboardHeader(title = "Ameriflux Explorer")
 sidebar <- dashboardSidebar(
@@ -47,6 +47,32 @@ sidebar <- dashboardSidebar(
 )
 
 body <- dashboardBody(
+  tags$head(
+    tags$script(
+      HTML("
+          window.onload = function() {
+            resizeMap();
+            resizeTable();
+          }
+          window.onresize = function() {
+            resizeMap();
+            resizeTable();
+          }
+          Shiny.addCustomMessageHandler ('triggerResize',function (val) {
+            window.dispatchEvent(new Event('resize'));
+          });
+          function resizeMap(){
+            var h = window.innerHeight - $('.navbar').height() - 280; // Get dashboardBody height
+            $('#map').height(h); 
+          }
+          function resizeTable(){
+            var h = window.innerHeight - $('.navbar').height() - 500;
+            $('#time_series_plot').height(h);
+          }"
+      )
+    )
+  ),
+  tags$head(includeCSS("styles.css")),
   tabItems(
     tabItem(
       # the Interactive map and subset interface
@@ -57,8 +83,6 @@ body <- dashboardBody(
         width=12,
         selected = "Map & Site selection",
         tabPanel("Map & Site selection",
-                 tags$head(tags$style("#map{height:68vh !important;}")),
-                 tags$head(includeCSS("styles.css")),
                  fluidRow(
                    valueBoxOutput("site_count"),
                    valueBoxOutput("year_count"),
