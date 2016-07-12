@@ -159,14 +159,11 @@ server <- function(input, output, session){
   # entire map is being torn down and recreated).
   output$map <- renderLeaflet({  
     map = leaflet(df) %>%
-      addTiles("http://otile3.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg",
-               attribution='Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency',
-               group = "JPL") %>%
       addProviderTiles("OpenStreetMap.BlackAndWhite",group = "OSM") %>%
       addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview) %>%
       # Layers control
       addLayersControl(
-        baseGroups = c("JPL", "OSM"),
+        baseGroups = c("OSM"),
         position = c("topleft"),
         options = layersControlOptions(collapsed = TRUE)
       ) %>%
