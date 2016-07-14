@@ -45,5 +45,5 @@ h1, h2, h3, h4, h5, h6 { font-weight: 400; }
 
 /* If not using map tiles, show a white background */
 .leaflet-container {
-  background-color: white !important;
+  background-color: white;
 }

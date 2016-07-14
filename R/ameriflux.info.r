@@ -13,10 +13,6 @@
 
 ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pages/",path=NULL){
   
-  # read the required libraries
-  require(rvest)
-  require(RCurl)
-  
   # grab the OS info
   OS = Sys.info()[1]
   machine = Sys.info()[4]
@@ -28,6 +24,10 @@ ameriflux.info <- function(url="http://ameriflux.lbl.gov/sites/site-list-and-pag
   # run local code if debugging
   if (machine == "squeeze" | machine == "Pandora.local"){
       phantomjs_path = "~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/phantomjs/"
+      
+      # read the required libraries
+      require(rvest)
+      require(RCurl)
   }
   
   # subroutines for triming leading spaces

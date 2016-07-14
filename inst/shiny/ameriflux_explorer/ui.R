@@ -1,9 +1,9 @@
 # load libraries
-require(shiny)
-require(shinydashboard)
-require(leaflet)
-require(plotly)
-require(DT)
+require(shiny, quietly = TRUE)
+require(shinydashboard, quietly = TRUE)
+require(leaflet, quietly = TRUE)
+require(plotly ,quietly = TRUE)
+require(DT, quietly = TRUE)
 
 # source about page content
 about = source('about.r')
@@ -35,9 +35,9 @@ header <- dashboardHeader(title = "Ameriflux Explorer")
 sidebar <- dashboardSidebar(
   includeCSS("custom.css"),
   sidebarMenu(
-    menuItem("Explore data", tabName = "explorer", icon = icon("leaf")),
-    menuItem("About Ameriflux", tabName = "about", icon = icon("question")),
-    menuItem("About the package", tabName = "help", icon = icon("question")),
+    menuItem("Explore data", tabName = "explorer", icon = icon("bar-chart-o")),
+    menuItem("About Ameriflux", tabName = "about", icon = icon("info-circle")),
+    menuItem("About the package", tabName = "help", icon = icon("info-circle")),
     menuItem("code on GitHub", icon = icon("github"), href = "https://github.com/khufkens/amerifluxr"),
     sidebarUserPanel(name = "Koen Hufkens",
                      image = "https://avatars2.githubusercontent.com/u/1354258?v=3&s=460",
@@ -82,7 +82,7 @@ body <- dashboardBody(
         side = "left",
         width=12,
         selected = "Map & Site selection",
-        tabPanel("Map & Site selection",
+        tabPanel("Map & Site selection", icon = icon("globe"),
                  fluidRow(
                    valueBoxOutput("site_count"),
                    valueBoxOutput("year_count"),
@@ -104,7 +104,7 @@ body <- dashboardBody(
                     )
                 )
         ),
-        tabPanel("Data Explorer",
+        tabPanel("Plot data", icon = icon("bar-chart-o"),
                  fluidRow(
                    column(4,
                           box(width = NULL,

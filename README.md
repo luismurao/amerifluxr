@@ -12,26 +12,34 @@ You can quick install the package by installing the following dependencies
 
 and downloading the package from the github repository
 
-	require(devtools)
-	install_github("khufkens/amerifluxr")
+```R
+require(devtools)
+install_github("khufkens/amerifluxr")
+```
 
 ## Use
 
 Most people will prefer the GUI to explore data on the fly. To envoke the GUI use the following command:
 
-	require(amerifluxr)
-	ameriflux.explorer()
+```R
+require(amerifluxr)
+ameriflux.explorer()
+```
 
 This will start a shiny application with an R backend in your default browser. Cached data will be downloaded to ~/ameriflux_cache, clear this directory if it gets to big.
 
 The initial metadata which provides information on the location of Ameriflux sites is drawn from the website. This process is sometimes slow making the first loading times longer. Subsequent starts will be faster as this data is stored in the cache directory (ameriflux_metadata.txt). One can query both the data and the site info using independent R functions as well
 
-	ameriflux.info() # returns the site info as ameriflux_metadata.txt
-	data = ameriflux.info(path=NULL) # export to data frame
+```R
+ameriflux.info() # returns the site info as ameriflux_metadata.txt
+data = ameriflux.info(path=NULL) # export to data frame
+```
 
 To query data use for example
 
-	download.ameriflux("US-Ha1")
+```R
+download.ameriflux("US-Ha1")
+```
 
 for all raw Harvard Forest data (not gap filled).
 
