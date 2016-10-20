@@ -183,6 +183,7 @@ server <- function(input, output, session) {
   # entire map is being torn down and recreated).
   output$map <- renderLeaflet({
     map = leaflet(df) %>%
+<<<<<<< HEAD
       addTiles(
         "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg",
         attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
@@ -199,6 +200,13 @@ server <- function(input, output, session) {
       # Layers control
       addLayersControl(
         baseGroups = c("World Imagery","MODIS Land Cover","Open Topo Map"),
+=======
+      addProviderTiles("OpenStreetMap.BlackAndWhite",group = "OSM") %>%
+      addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview) %>%
+      # Layers control
+      addLayersControl(
+        baseGroups = c("OSM"),
+>>>>>>> ca1858b603b1f247a91f2fd7fa1589f39910bf91
         position = c("topleft"),
         options = layersControlOptions(collapsed = TRUE)
       ) %>%

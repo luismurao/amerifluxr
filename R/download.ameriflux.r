@@ -71,7 +71,11 @@ download.ameriflux = function(site="US-Ha1",gap_fill=TRUE){
     }
 
     # download file list for a given site and product (gap filled or not)
-    url = sprintf("%s/%s/%s/",server,i,gap_dir)
+	if (i=='US-UMB'){
+      url = sprintf("%s/%s/%s/%s/",server,i,gap_dir,'half_hourly')
+    }else{
+      url = sprintf("%s/%s/%s/",server,i,gap_dir)
+    }
     status = try(getURL(url,dirlistonly = TRUE))
 
     if (!inherits(status,"try-error")){
@@ -101,7 +105,11 @@ download.ameriflux = function(site="US-Ha1",gap_fill=TRUE){
       for(f in 1:length(flux_data_files)){
 
         # format url of download file
-        url = sprintf("%s/%s/%s/%s",server,i,gap_dir,flux_data_files[f])
+		if (i=='US-UMB'){
+		  url = sprintf("%s/%s/%s/%s/%s",server,i,gap_dir,'half_hourly',flux_data_files[f])
+		}else{
+		  url = sprintf("%s/%s/%s/%s",server,i,gap_dir,flux_data_files[f])
+		}
 
         # give some feedback on processing
         cat(sprintf("  - adding year: %s \n", years[f]))
