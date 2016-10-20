@@ -8,35 +8,21 @@ require(data.table) # loads data far faster than read.table()
 
 # grab the OS info
 OS = Sys.info()[1]
-machine = Sys.info()[4]
+machine = Sys.info()[6]
 
 # When on the machine of the developer, sideload the code locally
 # for quick reviewing of changes to the GUI
-if (machine == "squeeze" | machine == "Pandora.local") {
-  source(
-    '~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/download.ameriflux.r'
+if (machine == "squeeze" | machine == "khufkens") {
+  
+  # load all functions
+  files = list.files(
+    "/data/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R",
+    "*.r",
+    full.names = TRUE
   )
-  source(
-    '~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/dir.exists.r'
-  )
-  source(
-    '~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/ameriflux.info.r'
-  )
-  source(
-    '~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/aggregate.flux.r'
-  )
-  source(
-    '~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/read.ameriflux.r'
-  )
-  source(
-    '~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/smooth.ts.r'
-  )
-  source(
-    '~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/optimal.span.r'
-  )
-  source(
-    '~/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/R/nee.transitions.r'
-  )
+  for (i in files) {
+    source(i)
+  }
   path = "/data/Dropbox/Research_Projects/code_repository/bitbucket/amerifluxr/inst/shiny/ameriflux_explorer"
 } else{
   path = sprintf("%s/shiny/ameriflux_explorer", path.package("amerifluxr"))
@@ -73,8 +59,7 @@ if (m_year != c_year) {
 # finally read in the metadata if all checks are go
 # convert to data frame instead of data table for subsetting
 # will change to data table later == faster
-df = as.data.frame(fread("ameriflux_metadata.txt", header = TRUE, sep =
-                           "|"))
+df = as.data.frame(fread("ameriflux_metadata.txt", header = TRUE, sep = "|"))
 
 myIcons <- icons(
   iconUrl = ifelse(
@@ -203,16 +188,17 @@ server <- function(input, output, session) {
         attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
         group = "World Imagery"
       ) %>%
-      addProviderTiles("OpenStreetMap.BlackAndWhite", group = "OSM") %>%
-      addMarkers(
-        lat = ~ location_lat,
-        lng = ~ location_long,
-        icon = ~ myIcons ,
-        popup =  ~ preview
-      ) %>%
+      addWMSTiles(
+        "http://webmap.ornl.gov/ogcbroker/wms?",
+        layers = "10004_31",
+        options = WMSTileOptions(format = "image/png", transparent = TRUE),
+        attribution = "",
+        group = "MODIS Land Cover") %>%
+      addProviderTiles("OpenTopoMap", group = "Open Topo Map") %>%
+      addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview) %>%
       # Layers control
       addLayersControl(
-        baseGroups = c("World Imagery", "OSM"),
+        baseGroups = c("World Imagery","MODIS Land Cover","Open Topo Map"),
         position = c("topleft"),
         options = layersControlOptions(collapsed = TRUE)
       ) %>%
@@ -535,6 +521,7 @@ server <- function(input, output, session) {
       input$gap_fill,
       input$refresh,
       input$smoothing
+      
     )
   })
   
@@ -586,17 +573,15 @@ server <- function(input, output, session) {
     } else{
       # subset data according to input / for some reason I can't call the
       # data frame columns using their input$... name
-      date = plot_data$date
-      year = plot_data$year
-      doy = plot_data$doy
-      flux = plot_data[, which(colnames(plot_data) == input$productivity)]
-      flux_smooth = plot_data[, which(colnames(plot_data) == sprintf("%s_smooth", input$productivity))]
+      plot_data$flux = plot_data[, which(colnames(plot_data) == input$productivity)]
+      plot_data$flux_smooth = plot_data[, which(colnames(plot_data) == sprintf("%s_smooth", input$productivity))]
+      
+      # include cummulative values in plotting, should be easier to interpret
+      # the yearly summary plots
+      plot_data$covariate = plot_data[, which(colnames(plot_data) == input$covariate)]
       
       # check the plotting type
       if (input$plot_type == "daily") {
-        # include cummulative values in plotting, should be easier to interpret
-        # the yearly summary plots
-        covariate = plot_data[, which(colnames(plot_data) == input$covariate)]
         
         # format y-axis
         ay1 = list(title = input$productivity,
@@ -612,16 +597,18 @@ server <- function(input, output, session) {
         )
         
         p = plot_ly(
-          x = date,
-          y = flux,
+          data = plot_data,
+          x = ~date,
+          y = ~flux,
           mode = "lines",
+          type = 'scatter',
           name = input$productivity,
           line = list(color = flux_col)
         ) %>%
           add_trace(
-            x = date,
-            y = covariate,
+            y = ~covariate,
             mode = "lines",
+            type = 'scatter',
             yaxis = "y2",
             line = list(color = covariate_col),
             name = input$covariate
@@ -634,50 +621,55 @@ server <- function(input, output, session) {
             title = df$site_id[as.numeric(input$table_row_last_clicked)]
           )
       } else if (input$plot_type == "yearly") {
-        # long term mean flux data
-        flux_mean = as.vector(by(flux, INDICES = doy, mean, na.rm = T))
-        flux_sd = as.vector(by(flux, INDICES = doy, sd, na.rm = T))
-        doy_mean = as.vector(by(doy, INDICES = doy, mean, na.rm = T))
         
-        p = plot_ly(
-          x = doy_mean,
-          y = flux_mean,
+        # long term mean flux data
+        ltm = plot_data %>% group_by(doy) %>%
+          summarise(mn = mean(flux_smooth), sd = sd(flux_smooth), doymn = mean(doy))
+        
+        p = ltm %>% plot_ly(
+          x = ~ doymn,
+          y = ~ mn,
           mode = "lines",
+          type = 'scatter',
           name = "LTM",
           line = list(color = ltm_col),
           inherit = FALSE
         ) %>%
           add_trace(
-            x = doy_mean,
-            y = flux_mean - flux_sd,
+            x = ~ doymn,
+            y = ~ mn - sd,
             mode = "lines",
+            type = 'scatter',
             fill = "none",
             line = list(width = 0, color = envelope_col),
             showlegend = FALSE,
             name = "SD"
           ) %>%
           add_trace(
-            x = doy_mean,
-            y = flux_mean + flux_sd,
+            x = ~ doymn,
+            y = ~ mn + sd,
+            type = 'scatter',
             mode = "lines",
             fill = "tonexty",
             line = list(width = 0, color = envelope_col),
             showlegend = TRUE,
             name = "SD"
           ) %>%
-          add_trace(
-            x = doy,
-            y = flux_smooth,
-            group = year,
-            mode = "lines",
-            showlegend = TRUE
+          add_trace(data = plot_data,
+                    x = ~ doy,
+                    y = ~ flux_smooth,
+                    split = ~ year,
+                    type = "scatter",
+                    mode = "lines",
+                    line = list(color = "Set1"),
+                    showlegend = TRUE
           ) %>%
           layout(
             xaxis = list(title = "DOY"),
             yaxis = list(title = input$productivity),
             title = df$site_id[as.numeric(input$table_row_last_clicked)]
           )
-        
+
       } else if (input$plot_type == "nee_phen") {
         if (is.null(transition_data)) {
           # format x-axis
@@ -730,42 +722,40 @@ server <- function(input, output, session) {
           p1 = plot_ly(
             x = transition_data$year,
             y = transition_data$SOS_NEE_smooth,
-            marker = list(symbol = "square"),
             mode = "markers",
-            name = "SOS",
-            yaxis = "y1",
-            title = "NEE source-sink phenology"
+            type = "scatter",
+            name = "SOS"
           ) %>%
-            add_trace(
-              x = transition_data$year,
-              y = transition_data$EOS_NEE_smooth,
-              mode = "markers",
-              name = "EOS",
-              yaxis = "y1"
-            ) %>%
             add_trace(
               x = transition_data$year,
               y = reg_sos$fitted.values,
               mode = "lines",
+              type = "scatter",
               name = sprintf("R2: %s| slope: %s", r2_sos, slp_sos),
-              line = list(width = 2),
-              yaxis = "y1"
+              line = list(width = 2)
+            ) %>%
+            add_trace(
+              x = transition_data$year,
+              y = transition_data$EOS_NEE_smooth,
+              mode = "markers",
+              type = "scatter",
+              name = "EOS"
             ) %>%
             add_trace(
               x = transition_data$year,
               y = reg_eos$fitted.values,
+              type = "scatter",
               mode = "lines",
               name = sprintf("R2: %s| slope: %s", r2_eos, slp_eos),
-              line = list(width = 2),
-              yaxis = "y1"
+              line = list(width = 2)
             )
           
           p2 = plot_ly(
             x = transition_data$year,
             y = transition_data$GSL_NEE_smooth,
             mode = "markers",
-            name = "GSL",
-            title = "NEE source-sink phenology"
+            type = "scatter",
+            name = "GSL"
           ) %>%
             add_trace(
               x = transition_data$year,
