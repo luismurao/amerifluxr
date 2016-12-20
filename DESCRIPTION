@@ -4,7 +4,14 @@ Version: 0.1
 Authors@R: person("Koen", "Hufkens", email = "koen.hufkens@gmail.com", role = c("aut", "cre"))
 Description: Provides easy access to Level2 Ameriflux data
 Depends:
-    R (>= 3.0.0),data.table,shiny,leaflet,plotly,DT,shinydashboard,RCurl,rvest
-License: see LICENSE
+    R (>= 3.0.0),
+    shiny,
+    leaflet,
+    plotly,
+    DT,
+    shinydashboard,
+    RCurl,
+    rvest
+License: AGPLv3
 LazyData: true
 RoxygenNote: 5.0.1
