@@ -13,8 +13,8 @@ You can quick install the package by installing the following dependencies
 and downloading the package from the github repository
 
 ```R
-require(devtools)
-install_github("khufkens/amerifluxr")
+library(devtools)
+install_github("luismurao/amerifluxr")
 ```
 
 ## Use
