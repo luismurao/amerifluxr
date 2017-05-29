@@ -210,6 +210,7 @@ server <- function(input, output, session) {
       setView(lng = -66,
               lat = 45,
               zoom = 2)
+  )
   })
 
   # Incremental changes to the map. Each independent set of things that can change
