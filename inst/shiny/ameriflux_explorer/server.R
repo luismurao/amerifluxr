@@ -198,7 +198,7 @@ server <- function(input, output, session) {
       addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview) %>%
       # Layers control
       addLayersControl(
-        baseGroups = c("World Imagery","MODIS Land Cover","Open Topo Map"),
+        baseGroups = c("World Imagery","MODIS Land Cover","Open Topo Map")) %>%
       addProviderTiles("OpenStreetMap.BlackAndWhite",group = "OSM") %>%
       addMarkers(lat = ~location_lat,lng = ~location_long,icon = ~myIcons ,popup=~preview) %>%
       # Layers control
@@ -210,7 +210,6 @@ server <- function(input, output, session) {
       setView(lng = -66,
               lat = 45,
               zoom = 2)
-  )
   })
 
   # Incremental changes to the map. Each independent set of things that can change
